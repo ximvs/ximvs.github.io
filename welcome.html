@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Welcome - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="welcome-page">
+  <div class="welcome-container">
+    <h1 class="welcome-title">Welcome to RiSC Schedule b1</h1>
+    <p class="welcome-subtitle">This is internal beta, if bugs appears please report</p>
+    <p class="welcome-redirect">Redirecting to main site in <span id="countdown">3</span> seconds...</p>
+  </div>
+
+  <script>
+    // Set flag in localStorage that user has seen welcome page
+    localStorage.setItem('welcomeSeen', 'true');
+    
+    // Countdown and redirect
+    let seconds = 3;
+    const countdownElement = document.getElementById('countdown');
+    
+    const countdown = setInterval(() => {
+      seconds--;
+      countdownElement.textContent = seconds;
+      
+      if (seconds <= 0) {
+        clearInterval(countdown);
+        window.location.href = 'index.html';
+      }
+    }, 1000);
+
+    // If user already saw welcome page, redirect immediately
+    if (localStorage.getItem('welcomeSeen') === 'true' && !window.location.href.includes('welcome.html')) {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

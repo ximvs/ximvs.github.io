@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Event - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html">
+        <img class="logo" src="logo.png" alt="RISC Logo">
+        <span>Schedule</span>
+      </a>
+    </div>
+    <div class="actions">
+      <div class="auth" id="auth-section">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      <div class="profile">
+        dev by rlsc1109<br />
+        <a href="https://discord.gg/HbCJkZFD" target="_blank" rel="noopener noreferrer">discord</a> •
+        <a href="https://osu.ppy.sh/users/20285591" target="_blank" rel="noopener noreferrer">osu</a> •
+        <a href="log.html" target="_blank" rel="noopener noreferrer">log</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1 id="event-title">Event Details</h1>
+      <div id="event-content">
+        <p>Loading event details...</p>
+      </div>
+      <a href="index.html" class="create-btn">Back to Events</a>
+    </div>
+  </main>
+
+  <div id="custom-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Title</h3>
+      <div id="modal-content">Content</div>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    Build 0.03.2.1 Beta<br />
+    Made by CHAN CHUN HEI, Dev by rlsc1109<br />
+    Internal Beta Build KK00321ABB, Maintenance
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const eventId = urlParams.get('id');
+      
+      if (!eventId) {
+        document.getElementById('event-content').innerHTML = '<p>Event not found.</p>';
+        return;
+      }
+      
+      const events = await window.loadEvents();
+      const event = events.find(ev => ev.id === eventId);
+      
+      if (!event) {
+        document.getElementById('event-content').innerHTML = '<p>Event not found.</p>';
+        return;
+      }
+      
+      document.getElementById('event-title').textContent = event.title;
+      
+      // Basic event content - can be extended with dynamic functions
+      let content = `
+        <p>Event created on: ${new Date(event.createdAt).toLocaleDateString()}</p>
+        <div style="margin: 20px 0; padding: 15px; background: #111; border-radius: 8px;">
+          <h3>Available Functions:</h3>
+          <ul>
+            <li>Currency Converter (HKD to JPY)</li>
+            <li>More functions can be added by admin</li>
+          </ul>
+        </div>
+        <div id="dynamic-functions">
+          <!-- Dynamic functions will be loaded here -->
+        </div>
+      `;
+      
+      document.getElementById('event-content').innerHTML = content;
+      
+      // Load currency converter
+      loadCurrencyConverter();
+      
+      // Update auth UI
+      if (window.updateAuthUI) {
+        window.updateAuthUI();
+      }
+    });
+    
+    function loadCurrencyConverter() {
+      const converterHTML = `
+        <div style="margin: 20px 0; padding: 15px; background: #222; border-radius: 8px;">
+          <h4>Currency Converter (HKD to JPY)</h4>
+          <input type="number" id="hkd-amount" placeholder="Enter HKD amount" style="padding: 8px; margin: 5px; border-radius: 4px; border: 1px solid #444; background: #333; color: #fff;">
+          <button onclick="convertCurrency()" style="padding: 8px 15px; margin: 5px; border-radius: 4px; border: none; background: #F4C430; color: #000; cursor: pointer;">Convert</button>
+          <div id="conversion-result" style="margin-top: 10px; padding: 10px; background: #333; border-radius: 4px;"></div>
+        </div>
+      `;
+      
+      document.getElementById('dynamic-functions').innerHTML = converterHTML;
+    }
+    
+    window.convertCurrency = function() {
+      const hkdInput = document.getElementById('hkd-amount');
+      const resultDiv = document.getElementById('conversion-result');
+      
+      if (!hkdInput.value) {
+        resultDiv.innerHTML = 'Please enter an amount.';
+        return;
+      }
+      
+      const hkd = parseFloat(hkdInput.value);
+      // Approximate exchange rate (adjust as needed)
+      const jpy = hkd * 17.5;
+      
+      resultDiv.innerHTML = `${hkd.toFixed(2)} HKD = ${jpy.toFixed(2)} JPY`;
+    };
+  </script>
+
+  <!-- Maintenance mode check -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      
+      if (maintenanceMode) {
+        const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        
+        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+          window.location.href = 'maintenance.html';
+          return;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

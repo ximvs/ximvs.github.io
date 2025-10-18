@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Maintenance - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="welcome-page">
+  <div class="welcome-container">
+    <h1 class="welcome-title">This Website are Currently Under Maintenance</h1>
+    <p class="welcome-subtitle">Enter Your Admin PIN to Access the Page</p>
+    
+    <div class="pin-input-container">
+      <input type="password" id="pin-input" class="pin-input" placeholder="Enter PIN" maxlength="20" autofocus>
+      <button id="pin-submit" class="pin-submit-btn">Access</button>
+    </div>
+    
+    <div id="pin-message" class="pin-message"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pinInput = document.getElementById('pin-input');
+      const pinSubmit = document.getElementById('pin-submit');
+      const pinMessage = document.getElementById('pin-message');
+      
+      // First check if maintenance mode is even enabled
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      if (!maintenanceMode) {
+        // If maintenance mode is disabled, redirect to index
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      // Check if user already has valid access in THIS session
+      const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+      
+      if (hasMaintenanceAccess) {
+        // User already has access in this session, redirect to index
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      // Focus on input
+      pinInput.focus();
+      
+      // Submit on button click
+      pinSubmit.addEventListener('click', checkPin);
+      
+      // Submit on Enter key
+      pinInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          checkPin();
+        }
+      });
+      
+      function checkPin() {
+        const enteredPin = pinInput.value.trim();
+        const storedPin = localStorage.getItem('maintenancePin') || '123456';
+        
+        if (enteredPin === storedPin) {
+          // Grant access for CURRENT SESSION ONLY (not 1 hour)
+          sessionStorage.setItem('maintenanceAccess', 'true');
+          
+          pinMessage.textContent = 'Access granted! Redirecting...';
+          pinMessage.style.color = '#005a00';
+          
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        } else {
+          pinMessage.textContent = 'Invalid PIN. Please try again.';
+          pinMessage.style.color = '#ff0000';
+          pinInput.value = '';
+          pinInput.focus();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

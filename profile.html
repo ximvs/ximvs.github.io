@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html">
+        <img class="logo" src="logo.png" alt="RISC Logo">
+        <span>Schedule</span>
+      </a>
+    </div>
+    <div class="actions">
+      <div class="auth" id="auth-section">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      <div class="profile">
+        dev by rlsc1109<br />
+        <a href="https://discord.gg/HbCJkZFD" target="_blank" rel="noopener noreferrer">discord</a> •
+        <a href="https://osu.ppy.sh/users/20285591" target="_blank" rel="noopener noreferrer">osu</a> •
+        <a href="log.html" target="_blank" rel="noopener noreferrer">log</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1>User Profile</h1>
+      <div id="profile-content">
+        <p>Loading profile...</p>
+      </div>
+      <a href="index.html" class="create-btn">Back to Home</a>
+    </div>
+  </main>
+
+  <div id="custom-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Title</h3>
+      <div id="modal-content">Content</div>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    Build 0.03.2.1 Beta<br />
+    Made by CHAN CHUN HEI, Dev by rlsc1109<br />
+    Internal Beta Build KK00321ABB, Maintenance
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = window.customAuth.getUser();
+      
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      renderProfile(user);
+      
+      // Update auth UI
+      if (window.updateAuthUI) {
+        window.updateAuthUI();
+      }
+    });
+    
+    function renderProfile(user) {
+      const content = `
+        <div style="max-width: 500px; margin: 0 auto;">
+          <div style="margin-bottom: 20px; padding: 15px; background: #111; border-radius: 8px;">
+            <p><strong>Username:</strong> ${user.username}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Role:</strong> ${user.role}</p>
+            <p><strong>Member since:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+          </div>
+          
+          <h3>Update Profile</h3>
+          <form id="profile-form">
+            <div style="margin-bottom: 15px;">
+              <label class="form-label">New Username:</label>
+              <input type="text" id="new-username" class="modal-input" value="${user.username}" placeholder="Enter new username">
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label class="form-label">New Password (leave empty to keep current):</label>
+              <input type="password" id="new-password" class="modal-input" placeholder="Enter new password">
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label class="form-label">Confirm Password:</label>
+              <input type="password" id="confirm-password" class="modal-input" placeholder="Confirm new password">
+            </div>
+            <button type="submit" class="create-btn" style="width: 100%;">Update Profile</button>
+          </form>
+        </div>
+      `;
+      
+      document.getElementById('profile-content').innerHTML = content;
+      
+      document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const newUsername = document.getElementById('new-username').value.trim();
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        
+        if (newUsername === '') {
+          window.modal.showMessage('Error', 'Username cannot be empty.', 'error');
+          return;
+        }
+        
+        if (newPassword && newPassword !== confirmPassword) {
+          window.modal.showMessage('Error', 'Passwords do not match.', 'error');
+          return;
+        }
+        
+        const updates = { username: newUsername };
+        if (newPassword) {
+          updates.password = newPassword;
+        }
+        
+        try {
+          const { user: updatedUser, error } = await window.customAuth.updateProfile(user.id, updates);
+          
+          if (error) throw error;
+          
+          window.modal.showMessage('Success', 'Profile updated successfully!', 'success');
+          
+          // Refresh the page to show updated info
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          
+        } catch (error) {
+          window.modal.showMessage('Error', 'Failed to update profile: ' + error.message, 'error');
+        }
+      });
+    }
+  </script>
+
+  <!-- Maintenance mode check -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      
+      if (maintenanceMode) {
+        const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        
+        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+          window.location.href = 'maintenance.html';
+          return;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

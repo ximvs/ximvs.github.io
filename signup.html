@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign Up - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html">
+        <img class="logo" src="logo.png" alt="RISC Logo">
+      </a>
+    </div>
+    <div class="actions">
+      <div class="auth">
+        <a href="signup.html">Sign Up</a> | 
+        <a href="login.html">Log In</a>
+      </div>
+      <div class="profile">
+        dev by rlsc1109<br />
+        <a href="https://discord.gg/HbCJkZFD" target="_blank" rel="noopener noreferrer">discord</a> •
+        <a href="https://osu.ppy.sh/users/20285591" target="_blank" rel="noopener noreferrer">osu</a> •
+        <a href="log.html" target="_blank" rel="noopener noreferrer">log</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1>Sign Up for Admin Access</h1>
+      <p>Signup requests will be pending until approved by an existing admin.</p>
+      <form id="signup-form">
+        <label for="email" class="form-label" style="color: #111;">Email:</label>
+        <input type="email" id="email" class="form-input" required autocomplete="email">
+        
+        <label for="username" class="form-label" style="color: #111;">Username:</label>
+        <input type="text" id="username" class="form-input" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" title="Username can only contain letters, numbers, and underscores" autocomplete="username">
+        
+        <label for="password" class="form-label" style="color: #111;">Password:</label>
+        <input type="password" id="password" class="form-input" required minlength="6" autocomplete="new-password">
+        
+        <button type="submit" class="create-btn">Request Signup</button>
+      </form>
+      <p id="signup-message"></p>
+    </div>
+  </main>
+
+  <!-- Modal for all popups -->
+  <div id="custom-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Title</h3>
+      <div id="modal-content">Content</div>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    Build 0.03.2.1 Beta<br />
+    Made by CHAN CHUN HEI, Dev by rlsc1109<br />
+    Internal Beta Build KK00321ABB, Maintenance
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('signup-message');
+      const submitBtn = document.querySelector('button[type="submit"]');
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      
+      try {
+        const { user, error } = await window.customAuth.signup(email, password, username);
+        
+        if (error) throw error;
+        
+        message.textContent = '✅ Signup successful! Redirecting...';
+        message.style.color = '#111';
+        
+        setTimeout(() => { 
+          window.location.href = 'success.html'; 
+        }, 1500);
+        
+      } catch (error) {
+        message.textContent = `❌ ${error.message}`;
+        message.style.color = '#ff0000';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request Signup';
+      }
+    });
+  </script>
+</body>
+</html>

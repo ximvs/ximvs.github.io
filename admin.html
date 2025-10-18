@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html">
+        <img class="logo" src="logo.png" alt="RISC Logo">
+        <span>Schedule</span>
+      </a>
+    </div>
+    <div class="actions">
+      <div class="auth" id="auth-section">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      <div class="profile">
+        dev by rlsc1109<br />
+        <a href="https://discord.gg/HbCJkZFD" target="_blank" rel="noopener noreferrer">discord</a> •
+        <a href="https://osu.ppy.sh/users/20285591" target="_blank" rel="noopener noreferrer">osu</a> •
+        <a href="log.html" target="_blank" rel="noopener noreferrer">log</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="admin-controls">
+      <div class="admin-control-item">
+        <span>Maintenance Mode:</span>
+        <div class="admin-toggle" id="maintenance-toggle"></div>
+      </div>
+      <div class="admin-control-item">
+        <span>PIN Code:</span>
+        <input type="text" id="pin-input" class="modal-input" style="width: 100px; padding: 5px;" value="123456">
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="create-btn" id="create-event-btn" aria-label="Create event">+ create event</button>
+      <button class="create-btn" id="manage-users-btn" aria-label="Manage users">manage users</button>
+      <div class="note">Admin Panel - Full control over events and user management</div>
+    </div>
+
+    <section class="grid" id="event-grid" aria-label="Events grid">
+      <!-- JS populates events -->
+    </section>
+  </main>
+
+  <!-- Modal for all popups -->
+  <div id="custom-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Title</h3>
+      <div id="modal-content">Content</div>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    Build 0.03.2.1 Beta<br />
+    Made by CHAN CHUN HEI, Dev by rlsc1109<br />
+    Internal Beta Build KK00321ABB, Maintenance
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if user is admin
+      const user = window.customAuth.getUser();
+      if (!user || user.role !== 'admin') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Initialize maintenance mode
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      const maintenancePin = localStorage.getItem('maintenancePin') || '123456';
+      
+      const maintenanceToggle = document.getElementById('maintenance-toggle');
+      const pinInput = document.getElementById('pin-input');
+      
+      if (maintenanceMode) {
+        maintenanceToggle.classList.add('active');
+      }
+      
+      pinInput.value = maintenancePin;
+      
+      // Update auth UI
+      if (window.updateAuthUI) {
+        window.updateAuthUI();
+      }
+      
+      // Load events
+      if (window.render) {
+        window.render(true);
+      }
+      
+      // Maintenance toggle handler
+      maintenanceToggle.addEventListener('click', (e) => {
+        e.target.classList.toggle('active');
+        const isActive = e.target.classList.contains('active');
+        localStorage.setItem('maintenanceMode', isActive.toString());
+        window.modal.showMessage(
+          'Maintenance Mode', 
+          `Maintenance mode ${isActive ? 'enabled' : 'disabled'}.`,
+          'success'
+        );
+      });
+      
+      // Pin update handler
+      pinInput.addEventListener('change', (e) => {
+        const newPin = e.target.value.trim();
+        if (newPin) {
+          localStorage.setItem('maintenancePin', newPin);
+          window.modal.showMessage('PIN Updated', 'Maintenance PIN has been updated.', 'success');
+        }
+      });
+      
+      // Create event button
+      document.getElementById('create-event-btn').addEventListener('click', () => {
+        window.createEventFlow(true);
+      });
+      
+      // Manage users button
+      document.getElementById('manage-users-btn').addEventListener('click', async () => {
+        try {
+          const { data: users, error } = await window.supabase
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+          
+          if (error) throw error;
+          
+          let usersList = '=== USER MANAGEMENT ===<br><br>';
+          users.forEach(user => {
+            usersList += `Email: ${user.email}<br>`;
+            usersList += `Username: ${user.username || 'Not set'}<br>`;
+            usersList += `Role: ${user.role}<br>`;
+            usersList += `ID: ${user.id}<br>`;
+            usersList += `Created: ${new Date(user.created_at).toLocaleDateString()}<br>`;
+            usersList += '------------------------<br>';
+          });
+          
+          usersList += '<br>To approve users, go to Supabase Dashboard → Table Editor → users table and change role from "pending" to "admin"';
+          
+          window.modal.showMessage('User Management', usersList);
+        } catch (error) {
+          window.modal.showMessage('Error', 'Error loading users: ' + error.message, 'error');
+        }
+      });
+    });
+  </script>
+
+  <!-- Maintenance mode check -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      
+      if (maintenanceMode) {
+        const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        
+        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+          window.location.href = 'maintenance.html';
+          return;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

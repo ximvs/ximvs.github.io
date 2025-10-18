@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - RISC Schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html">
+        <img class="logo" src="logo.png" alt="RISC Logo">
+        <span>Schedule</span>
+      </a>
+    </div>
+    <div class="actions">
+      <div class="auth">
+        <a href="signup.html">Sign Up</a> | 
+        <a href="login.html">Log In</a>
+      </div>
+      <div class="profile">
+        dev by rlsc1109<br />
+        <a href="https://discord.gg/HbCJkZFD" target="_blank" rel="noopener noreferrer">discord</a> •
+        <a href="https://osu.ppy.sh/users/20285591" target="_blank" rel="noopener noreferrer">osu</a> •
+        <a href="log.html" target="_blank" rel="noopener noreferrer">log</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1>Login</h1>
+      <form id="login-form">
+        <label for="username" class="form-label">Username:</label>
+        <input type="text" id="username" class="form-input" required autocomplete="username">
+        <label for="password" class="form-label">Password:</label>
+        <input type="password" id="password" class="form-input" required autocomplete="current-password">
+        <button type="submit" class="create-btn">Login</button>
+      </form>
+      <p id="login-message"></p>
+    </div>
+  </main>
+
+  <!-- Modal for all popups -->
+  <div id="custom-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Title</h3>
+      <div id="modal-content">Content</div>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    Build 0.03.2.1 Beta<br />
+    Made by CHAN CHUN HEI, Dev by rlsc1109<br />
+    Internal Beta Build KK00321ABB, Maintenance
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('login-message');
+      const submitBtn = document.querySelector('button[type="submit"]');
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Logging in...';
+      
+      try {
+        const { user, error } = await window.customAuth.login(username, password);
+        
+        if (error) throw error;
+        
+        // Show success message in modal instead of redirecting immediately
+        window.modal.showMessage('Login Successful', 'You have successfully logged in. Redirecting to admin panel...', 'success');
+        
+        setTimeout(() => { 
+          if (user.role === 'admin') {
+            window.location.href = 'admin.html'; 
+          } else {
+            window.location.href = 'index.html'; 
+          }
+        }, 3000);
+        
+      } catch (error) {
+        message.textContent = `${error.message}`;
+        message.style.color = '#ff0000';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+      }
+    });
+  </script>
+
+  <!-- Maintenance mode check -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      
+      if (maintenanceMode) {
+        const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        
+        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+          window.location.href = 'maintenance.html';
+          return;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

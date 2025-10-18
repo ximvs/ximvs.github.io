@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>risc schedule</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html">
+        <img class="logo" src="logo.png" alt="RISC Logo">
+        <span>Schedule</span>
+      </a>
+    </div>
+    <div class="actions">
+      <div class="auth" id="auth-section">
+        <a href="signup.html">Sign Up</a> | 
+        <a href="login.html">Log In</a>
+      </div>
+      <div class="profile">
+        dev by rlsc1109<br />
+        <a href="https://discord.gg/HbCJkZFD" target="_blank" rel="noopener noreferrer">discord</a> •
+        <a href="https://osu.ppy.sh/users/20285591" target="_blank" rel="noopener noreferrer">osu</a> •
+        <a href="log.html" target="_blank" rel="noopener noreferrer">log</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="toolbar">
+      <button class="create-btn" id="create-event-btn" aria-label="Create event" style="display: none;">+ create event</button>
+      <div class="note">Up to 6 events. Click on events to access (password required). Admin login required to create/edit/delete.</div>
+    </div>
+
+    <section class="grid" id="event-grid" aria-label="Events grid">
+      <!-- JS populates events -->
+    </section>
+  </main>
+
+  <!-- Modal for all popups -->
+  <div id="custom-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title"></h3>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    Build 0.03.2.1 Beta<br />
+    Made by CHAN CHUN HEI, Dev by rlsc1109<br />
+    Internal Beta Build KK00321ABB, Maintenance
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+  
+  <script>
+    // Enhanced maintenance mode check
+    document.addEventListener('DOMContentLoaded', () => {
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      
+      if (maintenanceMode) {
+        const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        
+        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+          window.location.href = 'maintenance.html';
+          return;
+        }
+      }
+      
+      // Check if user has never visited before, redirect to welcome page
+      if (!localStorage.getItem('welcomeSeen')) {
+        window.location.href = 'welcome.html';
+        return;
+      }
+      
+      console.log('Maintenance check passed - loading normal content');
+    });
+  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+    
+    if (maintenanceMode) {
+      const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+      
+      if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+        window.location.href = 'maintenance.html';
+        return;
+      }
+    }
+    
+    // Check if user has never visited before, redirect to welcome page
+    if (!localStorage.getItem('welcomeSeen')) {
+      window.location.href = 'welcome.html';
+      return;
+    }
+    
+    console.log('Maintenance check passed - loading normal content');
+  });
+</script>
+</body>
+</html>
