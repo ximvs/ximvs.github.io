@@ -1,9 +1,75 @@
-// Enhanced Custom Authentication System with Error Handling
+// Enhanced Custom Authentication System with Modal Support
 const supabaseUrl = 'https://qagijkefhdarqjclnnwe.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhZ2lqa2VmaGRhcnFqY2xubndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDk1NjQsImV4cCI6MjA3NjE4NTU2NH0.wVnCLmgPPBL-okPAeUfMzNoWA3v2eBqT5SOPdu629_E';
 
 // Initialize Supabase
 window.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Simple Modal System for auth errors
+window.authModal = {
+  showMessage: (title, message, type = 'info') => {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('auth-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'auth-modal';
+      modal.style.cssText = `
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      `;
+      modal.innerHTML = `
+        <div style="
+          background: #F4C430;
+          padding: 24px;
+          border-radius: 12px;
+          border: 2px solid #000;
+          max-width: 400px;
+          width: 90%;
+          text-align: center;
+        ">
+          <h3 id="auth-modal-title" style="margin: 0 0 15px 0; color: #111;"></h3>
+          <div id="auth-modal-content" style="color: #111;"></div>
+          <button onclick="window.authModal.hide()" style="
+            margin-top: 15px;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #000;
+            color: #F4C430;
+            font-family: 'Cascadia Code', monospace;
+            font-style: italic;
+          ">OK</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    const modalTitle = document.getElementById('auth-modal-title');
+    const modalContent = document.getElementById('auth-modal-content');
+    
+    if (modalTitle && modalContent) {
+      modalTitle.textContent = title;
+      modalContent.innerHTML = message;
+      modal.style.display = 'flex';
+    }
+  },
+  
+  hide: () => {
+    const modal = document.getElementById('auth-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
+};
 
 // Password hashing
 window.hashPassword = async (password) => {
@@ -225,21 +291,3 @@ window.isAdmin = () => {
   const user = window.customAuth.getUser();
   return user && user.role === 'admin';
 };
-
-// Test database connection on load
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const { data, error } = await window.supabase
-      .from('users')
-      .select('count')
-      .limit(1);
-    
-    if (error) {
-      console.error('Database connection test failed:', error);
-    } else {
-      console.log('Database connection successful');
-    }
-  } catch (error) {
-    console.error('Database test error:', error);
-  }
-});

@@ -105,7 +105,12 @@ async function loadEvents() {
     }
   } catch (e) {
     console.error('Error loading events:', e);
-    window.modal.showMessage('Error', 'Failed to load events. Please refresh the page.', 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Failed to load events. Please refresh the page.', 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Failed to load events. Please refresh the page.', 'error');
+    }
     return [];
   }
 }
@@ -120,7 +125,12 @@ async function saveEvents(events) {
     return { success: true };
   } catch (e) {
     console.error('Error saving events:', e);
-    window.modal.showMessage('Error', 'Error saving events: ' + e.message, 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Error saving events: ' + e.message, 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Error saving events: ' + e.message, 'error');
+    }
     return { success: false, error: e };
   }
 }
@@ -206,7 +216,12 @@ window.performDelete = async (index) => {
     let currentEvents = await loadEvents();
     
     if (index < 0 || index >= currentEvents.length) {
-      window.modal.showMessage('Error', 'Event not found.', 'error');
+      // Use available modal system
+      if (window.modal && window.modal.showMessage) {
+        window.modal.showMessage('Error', 'Event not found.', 'error');
+      } else if (window.authModal) {
+        window.authModal.showMessage('Error', 'Event not found.', 'error');
+      }
       return;
     }
     
@@ -220,10 +235,20 @@ window.performDelete = async (index) => {
       const isAdmin = user && user.role === 'admin';
       render(isAdmin);
       
-      window.modal.showMessage('Success', `"${eventTitle}" deleted successfully!`, 'success');
+      // Use available modal system
+      if (window.modal && window.modal.showMessage) {
+        window.modal.showMessage('Success', `"${eventTitle}" deleted successfully!`, 'success');
+      } else if (window.authModal) {
+        window.authModal.showMessage('Success', `"${eventTitle}" deleted successfully!`, 'success');
+      }
     }
   } catch (error) {
-    window.modal.showMessage('Error', 'Failed to delete event: ' + error.message, 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Failed to delete event: ' + error.message, 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Failed to delete event: ' + error.message, 'error');
+    }
   }
 };
 
@@ -244,7 +269,12 @@ async function openEvent(index) {
         localStorage.setItem(`lastVisited_${ev.id}`, Date.now().toString());
         window.location.href = `event.html?id=${ev.id}`;
       } else {
-        window.modal.showMessage('Error', 'Incorrect password.', 'error');
+        // Use available modal system
+        if (window.modal && window.modal.showMessage) {
+          window.modal.showMessage('Error', 'Incorrect password.', 'error');
+        } else if (window.authModal) {
+          window.authModal.showMessage('Error', 'Incorrect password.', 'error');
+        }
       }
     });
   } else {
@@ -283,7 +313,12 @@ window.saveEventEdit = async (index) => {
   const newPassword = passwordInput.value.trim();
   
   if (newTitle === '') {
-    window.modal.showMessage('Error', 'Event title cannot be empty.', 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Event title cannot be empty.', 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Event title cannot be empty.', 'error');
+    }
     return;
   }
   
@@ -296,27 +331,47 @@ window.saveEventEdit = async (index) => {
     
     if (result.success) {
       window.modal.hide();
-      window.modal.showMessage('Success', 'Event updated successfully!', 'success');
+      // Use available modal system
+      if (window.modal && window.modal.showMessage) {
+        window.modal.showMessage('Success', 'Event updated successfully!', 'success');
+      } else if (window.authModal) {
+        window.authModal.showMessage('Success', 'Event updated successfully!', 'success');
+      }
       
       const user = window.customAuth.getUser();
       const isAdmin = user && user.role === 'admin';
       render(isAdmin);
     }
   } catch (error) {
-    window.modal.showMessage('Error', 'Failed to update event: ' + error.message, 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Failed to update event: ' + error.message, 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Failed to update event: ' + error.message, 'error');
+    }
   }
 };
 
 async function createEventFlow(isAdmin) {
   if (!isAdmin) {
-    window.modal.showMessage('Access Denied', 'You must be an approved admin to create events.', 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Access Denied', 'You must be an approved admin to create events.', 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Access Denied', 'You must be an approved admin to create events.', 'error');
+    }
     return;
   }
 
   const events = await loadEvents();
   
   if (events.length >= MAX_EVENTS) {
-    window.modal.showMessage('Limit Reached', `Maximum ${MAX_EVENTS} events allowed. Please delete an event first.`, 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Limit Reached', `Maximum ${MAX_EVENTS} events allowed. Please delete an event first.`, 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Limit Reached', `Maximum ${MAX_EVENTS} events allowed. Please delete an event first.`, 'error');
+    }
     return;
   }
 
@@ -344,7 +399,12 @@ window.createNewEvent = async () => {
   const password = passwordInput.value.trim();
   
   if (title === '') {
-    window.modal.showMessage('Error', 'Event title cannot be empty.', 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Event title cannot be empty.', 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Event title cannot be empty.', 'error');
+    }
     return;
   }
   
@@ -372,14 +432,24 @@ window.createNewEvent = async () => {
     
     if (result.success) {
       window.modal.hide();
-      window.modal.showMessage('Success', 'Event created successfully!', 'success');
+      // Use available modal system
+      if (window.modal && window.modal.showMessage) {
+        window.modal.showMessage('Success', 'Event created successfully!', 'success');
+      } else if (window.authModal) {
+        window.authModal.showMessage('Success', 'Event created successfully!', 'success');
+      }
       
       const user = window.customAuth.getUser();
       const isAdmin = user && user.role === 'admin';
       render(isAdmin);
     }
   } catch (error) {
-    window.modal.showMessage('Error', 'Failed to create event: ' + error.message, 'error');
+    // Use available modal system
+    if (window.modal && window.modal.showMessage) {
+      window.modal.showMessage('Error', 'Failed to create event: ' + error.message, 'error');
+    } else if (window.authModal) {
+      window.authModal.showMessage('Error', 'Failed to create event: ' + error.message, 'error');
+    }
   }
 };
 

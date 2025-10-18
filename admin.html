@@ -105,11 +105,12 @@
         e.target.classList.toggle('active');
         const isActive = e.target.classList.contains('active');
         localStorage.setItem('maintenanceMode', isActive.toString());
-        window.modal.showMessage(
-          'Maintenance Mode', 
-          `Maintenance mode ${isActive ? 'enabled' : 'disabled'}.`,
-          'success'
-        );
+        // Use available modal system
+        if (window.modal && window.modal.showMessage) {
+          window.modal.showMessage('Maintenance Mode', `Maintenance mode ${isActive ? 'enabled' : 'disabled'}.`, 'success');
+        } else if (window.authModal) {
+          window.authModal.showMessage('Maintenance Mode', `Maintenance mode ${isActive ? 'enabled' : 'disabled'}.`, 'success');
+        }
       });
       
       // Pin update handler
@@ -117,7 +118,12 @@
         const newPin = e.target.value.trim();
         if (newPin) {
           localStorage.setItem('maintenancePin', newPin);
-          window.modal.showMessage('PIN Updated', 'Maintenance PIN has been updated.', 'success');
+          // Use available modal system
+          if (window.modal && window.modal.showMessage) {
+            window.modal.showMessage('PIN Updated', 'Maintenance PIN has been updated.', 'success');
+          } else if (window.authModal) {
+            window.authModal.showMessage('PIN Updated', 'Maintenance PIN has been updated.', 'success');
+          }
         }
       });
       
@@ -126,7 +132,7 @@
         window.createEventFlow(true);
       });
       
-      // Manage users button
+      // Enhanced Manage Users functionality
       document.getElementById('manage-users-btn').addEventListener('click', async () => {
         try {
           const { data: users, error } = await window.supabase
@@ -136,24 +142,94 @@
           
           if (error) throw error;
           
-          let usersList = '=== USER MANAGEMENT ===<br><br>';
+          let usersList = '<div class="users-management">';
+          usersList += '<h4>User Management</h4>';
+          usersList += '<div class="users-list">';
+          
           users.forEach(user => {
-            usersList += `Email: ${user.email}<br>`;
-            usersList += `Username: ${user.username || 'Not set'}<br>`;
-            usersList += `Role: ${user.role}<br>`;
-            usersList += `ID: ${user.id}<br>`;
-            usersList += `Created: ${new Date(user.created_at).toLocaleDateString()}<br>`;
-            usersList += '------------------------<br>';
+            const statusClass = user.role === 'pending' ? 'pending' : user.role === 'admin' ? 'admin' : 'user';
+            usersList += `
+              <div class="user-item ${statusClass}">
+                <div class="user-info">
+                  <strong>${user.username}</strong> (${user.email})<br>
+                  <small>Role: ${user.role} | Created: ${new Date(user.created_at).toLocaleDateString()}</small>
+                </div>
+                <div class="user-actions">
+                  ${user.role === 'pending' ? 
+                    `<button class="approve-btn" onclick="approveUser('${user.id}', '${user.username}')">Approve as Admin</button>` : 
+                    `<span class="status-badge">${user.role}</span>`
+                  }
+                </div>
+              </div>
+            `;
           });
           
-          usersList += '<br>To approve users, go to Supabase Dashboard → Table Editor → users table and change role from "pending" to "admin"';
+          usersList += '</div>';
+          usersList += '<div class="admin-notes">';
+          usersList += '<p><strong>To approve users:</strong></p>';
+          usersList += '<p>1. Click "Approve as Admin" button above, OR</p>';
+          usersList += '<p>2. Go to Supabase Dashboard → Table Editor → users table</p>';
+          usersList += '<p>3. Change role from "pending" to "admin"</p>';
+          usersList += '</div>';
+          usersList += '</div>';
           
-          window.modal.showMessage('User Management', usersList);
+          // Use the main modal system if available, otherwise use authModal
+          if (window.modal && window.modal.showMessage) {
+            window.modal.showMessage('User Management', usersList);
+          } else if (window.authModal) {
+            window.authModal.showMessage('User Management', usersList);
+          } else {
+            alert('User Management: Check Supabase Dashboard to approve users.');
+          }
+          
         } catch (error) {
-          window.modal.showMessage('Error', 'Error loading users: ' + error.message, 'error');
+          // Use available modal system
+          if (window.modal && window.modal.showMessage) {
+            window.modal.showMessage('Error', 'Error loading users: ' + error.message, 'error');
+          } else if (window.authModal) {
+            window.authModal.showMessage('Error', 'Error loading users: ' + error.message, 'error');
+          } else {
+            alert('Error loading users: ' + error.message);
+          }
         }
       });
     });
+    
+    // Approve user function
+    window.approveUser = async (userId, username) => {
+      try {
+        const { error } = await window.supabase
+          .from('users')
+          .update({ role: 'admin' })
+          .eq('id', userId);
+        
+        if (error) throw error;
+        
+        // Use available modal system
+        if (window.modal && window.modal.showMessage) {
+          window.modal.showMessage('Success', `User "${username}" approved as admin successfully!`, 'success');
+        } else if (window.authModal) {
+          window.authModal.showMessage('Success', `User "${username}" approved as admin successfully!`, 'success');
+        } else {
+          alert(`User "${username}" approved as admin successfully!`);
+        }
+        
+        // Refresh the user list after 2 seconds
+        setTimeout(() => {
+          document.getElementById('manage-users-btn').click();
+        }, 2000);
+        
+      } catch (error) {
+        // Use available modal system
+        if (window.modal && window.modal.showMessage) {
+          window.modal.showMessage('Error', 'Failed to approve user: ' + error.message, 'error');
+        } else if (window.authModal) {
+          window.authModal.showMessage('Error', 'Failed to approve user: ' + error.message, 'error');
+        } else {
+          alert('Failed to approve user: ' + error.message);
+        }
+      }
+    };
   </script>
 
   <!-- Maintenance mode check -->

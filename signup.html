@@ -12,6 +12,7 @@
     <div class="brand">
       <a href="index.html">
         <img class="logo" src="logo.png" alt="RISC Logo">
+        <span>Schedule</span>
       </a>
     </div>
     <div class="actions">
@@ -33,13 +34,13 @@
       <h1>Sign Up for Admin Access</h1>
       <p>Signup requests will be pending until approved by an existing admin.</p>
       <form id="signup-form">
-        <label for="email" class="form-label" style="color: #111;">Email:</label>
+        <label for="email" class="form-label">Email:</label>
         <input type="email" id="email" class="form-input" required autocomplete="email">
         
-        <label for="username" class="form-label" style="color: #111;">Username:</label>
+        <label for="username" class="form-label">Username:</label>
         <input type="text" id="username" class="form-input" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" title="Username can only contain letters, numbers, and underscores" autocomplete="username">
         
-        <label for="password" class="form-label" style="color: #111;">Password:</label>
+        <label for="password" class="form-label">Password:</label>
         <input type="password" id="password" class="form-input" required minlength="6" autocomplete="new-password">
         
         <button type="submit" class="create-btn">Request Signup</button>
@@ -64,6 +65,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
   <script>
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -81,18 +83,39 @@
         
         if (error) throw error;
         
-        message.textContent = '✅ Signup successful! Redirecting...';
-        message.style.color = '#111';
+        // Use authModal instead of modal
+        if (window.authModal) {
+          window.authModal.showMessage('Registration Successful', 'Your account has been submitted for admin approval. You will be redirected to homepage.', 'success');
+        } else {
+          // Fallback to alert if modal not available
+          alert('Registration Successful! Your account is pending admin approval.');
+        }
         
         setTimeout(() => { 
-          window.location.href = 'success.html'; 
-        }, 1500);
+          window.location.href = 'index.html'; 
+        }, 3000);
         
       } catch (error) {
-        message.textContent = `❌ ${error.message}`;
+        message.textContent = `${error.message}`;
         message.style.color = '#ff0000';
         submitBtn.disabled = false;
         submitBtn.textContent = 'Request Signup';
+      }
+    });
+  </script>
+
+  <!-- Maintenance mode check -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      
+      if (maintenanceMode) {
+        const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        
+        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
+          window.location.href = 'maintenance.html';
+          return;
+        }
       }
     });
   </script>
