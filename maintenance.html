@@ -6,6 +6,42 @@
   <title>Maintenance - RISC Schedule</title>
   <meta name="color-scheme" content="dark light">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      .welcome-container {
+        padding: 20px;
+        margin: 0 10px;
+      }
+      
+      .welcome-title {
+        font-size: 1.8rem;
+        line-height: 1.3;
+      }
+      
+      .pin-input-container {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .pin-input {
+        width: 100%;
+        max-width: 280px;
+        font-size: 16px; /* Prevent zoom on iOS */
+      }
+      
+      .pin-submit-btn {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+    
+    /* Force full height on mobile */
+    html, body {
+      height: 100%;
+      overflow: auto;
+    }
+  </style>
 </head>
 <body class="welcome-page">
   <div class="welcome-container">
@@ -21,30 +57,41 @@
   </div>
 
   <script>
+    // Enhanced mobile maintenance check
     document.addEventListener('DOMContentLoaded', () => {
+      console.log('Maintenance page loaded on device');
+      
       const pinInput = document.getElementById('pin-input');
       const pinSubmit = document.getElementById('pin-submit');
       const pinMessage = document.getElementById('pin-message');
       
       // First check if maintenance mode is even enabled
       const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      console.log('Maintenance mode enabled:', maintenanceMode);
+      
       if (!maintenanceMode) {
-        // If maintenance mode is disabled, redirect to index
-        window.location.href = 'index.html';
+        console.log('Maintenance mode disabled, redirecting to index');
+        window.location.replace('index.html');
         return;
       }
       
       // Check if user already has valid access in THIS session
       const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+      console.log('Has maintenance access:', hasMaintenanceAccess);
       
       if (hasMaintenanceAccess) {
-        // User already has access in this session, redirect to index
-        window.location.href = 'index.html';
+        console.log('User has access, redirecting to index');
+        window.location.replace('index.html');
         return;
       }
       
-      // Focus on input
-      pinInput.focus();
+      // Mobile-specific: Force focus on input
+      setTimeout(() => {
+        if (pinInput) {
+          pinInput.focus();
+          console.log('Focused on PIN input');
+        }
+      }, 500);
       
       // Submit on button click
       pinSubmit.addEventListener('click', checkPin);
@@ -60,22 +107,48 @@
         const enteredPin = pinInput.value.trim();
         const storedPin = localStorage.getItem('maintenancePin') || '123456';
         
+        console.log('Checking PIN:', { entered: enteredPin, stored: storedPin });
+        
         if (enteredPin === storedPin) {
-          // Grant access for CURRENT SESSION ONLY (not 1 hour)
+          // Grant access for CURRENT SESSION ONLY
           sessionStorage.setItem('maintenanceAccess', 'true');
+          console.log('PIN correct, access granted');
           
           pinMessage.textContent = 'Access granted! Redirecting...';
           pinMessage.style.color = '#005a00';
           
+          // Mobile: Use shorter timeout for better UX
           setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 1000);
+            window.location.replace('index.html');
+          }, 800);
         } else {
+          console.log('PIN incorrect');
           pinMessage.textContent = 'Invalid PIN. Please try again.';
           pinMessage.style.color = '#ff0000';
           pinInput.value = '';
-          pinInput.focus();
+          
+          // Mobile: Refocus on input
+          setTimeout(() => {
+            pinInput.focus();
+          }, 100);
         }
+      }
+      
+      // Mobile: Add touch event listeners for better mobile support
+      pinSubmit.addEventListener('touchend', (e) => {
+        e.preventDefault(); // Prevent double tap zoom
+        checkPin();
+      });
+    });
+    
+    // Additional mobile detection and handling
+    window.addEventListener('load', () => {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      console.log('Is mobile device:', isMobile);
+      
+      if (isMobile) {
+        // Mobile-specific optimizations
+        document.body.style.minHeight = window.innerHeight + 'px';
       }
     });
   </script>

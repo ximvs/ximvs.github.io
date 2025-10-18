@@ -105,7 +105,6 @@
         e.target.classList.toggle('active');
         const isActive = e.target.classList.contains('active');
         localStorage.setItem('maintenanceMode', isActive.toString());
-        // Use available modal system
         if (window.modal && window.modal.showMessage) {
           window.modal.showMessage('Maintenance Mode', `Maintenance mode ${isActive ? 'enabled' : 'disabled'}.`, 'success');
         } else if (window.authModal) {
@@ -118,7 +117,6 @@
         const newPin = e.target.value.trim();
         if (newPin) {
           localStorage.setItem('maintenancePin', newPin);
-          // Use available modal system
           if (window.modal && window.modal.showMessage) {
             window.modal.showMessage('PIN Updated', 'Maintenance PIN has been updated.', 'success');
           } else if (window.authModal) {
@@ -173,7 +171,6 @@
           usersList += '</div>';
           usersList += '</div>';
           
-          // Use the main modal system if available, otherwise use authModal
           if (window.modal && window.modal.showMessage) {
             window.modal.showMessage('User Management', usersList);
           } else if (window.authModal) {
@@ -183,7 +180,6 @@
           }
           
         } catch (error) {
-          // Use available modal system
           if (window.modal && window.modal.showMessage) {
             window.modal.showMessage('Error', 'Error loading users: ' + error.message, 'error');
           } else if (window.authModal) {
@@ -205,7 +201,6 @@
         
         if (error) throw error;
         
-        // Use available modal system
         if (window.modal && window.modal.showMessage) {
           window.modal.showMessage('Success', `User "${username}" approved as admin successfully!`, 'success');
         } else if (window.authModal) {
@@ -214,13 +209,11 @@
           alert(`User "${username}" approved as admin successfully!`);
         }
         
-        // Refresh the user list after 2 seconds
         setTimeout(() => {
           document.getElementById('manage-users-btn').click();
         }, 2000);
         
       } catch (error) {
-        // Use available modal system
         if (window.modal && window.modal.showMessage) {
           window.modal.showMessage('Error', 'Failed to approve user: ' + error.message, 'error');
         } else if (window.authModal) {
@@ -234,15 +227,28 @@
 
   <!-- Maintenance mode check -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
       const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      const currentPage = window.location.pathname.split('/').pop();
       
-      if (maintenanceMode) {
+      if (maintenanceMode && currentPage !== 'maintenance.html') {
         const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
         
-        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
-          window.location.href = 'maintenance.html';
+        if (!hasMaintenanceAccess) {
+          window.location.replace('maintenance.html');
           return;
+        }
+      }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+        const hasAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        if (maintenanceMode && !hasAccess && currentPage !== 'maintenance.html') {
+          window.location.replace('maintenance.html');
         }
       }
     });

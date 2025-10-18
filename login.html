@@ -76,11 +76,9 @@
         
         if (error) throw error;
         
-        // Use authModal instead of modal
         if (window.authModal) {
           window.authModal.showMessage('Login Successful', 'You have successfully logged in. Redirecting...', 'success');
         } else {
-          // Fallback to alert if modal not available
           alert('Login Successful! Redirecting...');
         }
         
@@ -103,15 +101,28 @@
 
   <!-- Maintenance mode check -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
       const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      const currentPage = window.location.pathname.split('/').pop();
       
-      if (maintenanceMode) {
+      if (maintenanceMode && currentPage !== 'maintenance.html') {
         const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
         
-        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
-          window.location.href = 'maintenance.html';
+        if (!hasMaintenanceAccess) {
+          window.location.replace('maintenance.html');
           return;
+        }
+      }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+        const hasAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        if (maintenanceMode && !hasAccess && currentPage !== 'maintenance.html') {
+          window.location.replace('maintenance.html');
         }
       }
     });

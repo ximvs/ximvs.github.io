@@ -645,3 +645,153 @@ button[type="submit"] {
 .admin-toggle.active::after {
   transform: translateX(20px);
 }
+
+/* User Management Styles */
+.users-management {
+  max-width: 100%;
+}
+
+.users-management h4 {
+  margin-bottom: 15px;
+  color: #111;
+  text-align: center;
+}
+
+.users-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.user-item.pending {
+  background: #fff3cd;
+  border-color: #ffeaa7;
+}
+
+.user-item.admin {
+  background: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.user-item.user {
+  background: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-info strong {
+  color: #111;
+}
+
+.user-info small {
+  color: #666;
+}
+
+.user-actions {
+  margin-left: 10px;
+}
+
+.approve-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.approve-btn:hover {
+  background: #218838;
+}
+
+.status-badge {
+  background: #6c757d;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.admin-notes {
+  background: #e9ecef;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.admin-notes p {
+  margin: 5px 0;
+  color: #111;
+}
+
+/* Mobile Maintenance Page Fixes */
+@media (max-width: 768px) {
+  .welcome-page {
+    min-height: 100vh;
+    height: auto;
+    padding: 20px 10px;
+  }
+  
+  .welcome-container {
+    padding: 30px 20px;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  
+  .welcome-title {
+    font-size: 1.8rem !important;
+    line-height: 1.3;
+    margin-bottom: 15px;
+  }
+  
+  .welcome-subtitle {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+  
+  .pin-input-container {
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .pin-input {
+    width: 100%;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 15px;
+  }
+  
+  .pin-submit-btn {
+    width: 100%;
+    padding: 15px;
+  }
+}
+
+/* Prevent mobile zoom on input focus */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Ensure full height on mobile */
+html, body {
+  min-height: 100vh;
+  height: auto;
+}

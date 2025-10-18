@@ -58,16 +58,23 @@
   <script src="supabase-config.js"></script>
   <script src="app.js"></script>
   
+  <!-- Enhanced maintenance check for mobile -->
   <script>
-    // Enhanced maintenance mode check
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Index page maintenance check started');
+      
       const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+      const currentPage = window.location.pathname.split('/').pop();
+      
+      console.log('Maintenance mode:', maintenanceMode, 'Page:', currentPage);
       
       if (maintenanceMode) {
         const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        console.log('Has maintenance access:', hasMaintenanceAccess);
         
-        if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
-          window.location.href = 'maintenance.html';
+        if (!hasMaintenanceAccess && currentPage !== 'maintenance.html') {
+          console.log('Redirecting to maintenance page');
+          window.location.replace('maintenance.html');
           return;
         }
       }
@@ -78,30 +85,21 @@
         return;
       }
       
-      console.log('Maintenance check passed - loading normal content');
+      console.log('All checks passed - loading normal content');
+    });
+
+    // Mobile: Additional check when page becomes visible
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+        const hasAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        if (maintenanceMode && !hasAccess && currentPage !== 'maintenance.html') {
+          window.location.replace('maintenance.html');
+        }
+      }
     });
   </script>
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
-    
-    if (maintenanceMode) {
-      const hasMaintenanceAccess = sessionStorage.getItem('maintenanceAccess') === 'true';
-      
-      if (!hasMaintenanceAccess && !window.location.href.includes('maintenance.html')) {
-        window.location.href = 'maintenance.html';
-        return;
-      }
-    }
-    
-    // Check if user has never visited before, redirect to welcome page
-    if (!localStorage.getItem('welcomeSeen')) {
-      window.location.href = 'welcome.html';
-      return;
-    }
-    
-    console.log('Maintenance check passed - loading normal content');
-  });
-</script>
 </body>
 </html>
